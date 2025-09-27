@@ -320,7 +320,7 @@
     }
 
     // ======================================================================================
-    // YouTube Player API script - FINAL FIX
+    // YouTube Player API script - FINAL
     // ======================================================================================
     let players = [];
 
@@ -349,7 +349,8 @@
     }
 
     function onPlayerReady(event) {
-        // Player is ready, but will wait for hover to play.
+        // THIS IS THE CRUCIAL FIX: It prevents the video iframe from blocking mouse events.
+        event.target.getIframe().style.pointerEvents = 'none';
     }
 
     window.onYouTubeIframeAPIReady = function() {
@@ -358,7 +359,6 @@
             let elementId = 'player' + index;
             playerDiv.attr('id', elementId);
 
-            // Use appear.js to create the player only when it's visible
             playerDiv.appear(function() {
                 if (playerDiv.children('iframe').length === 0) {
                     createPlayer(elementId, index, playerDiv.data('video-id'), playerDiv.data('orientation'));
@@ -369,7 +369,7 @@
 
     // Custom hover controls to play/unmute and pause/mute
     $(document).ready(function() {
-        $('.work-one').on('mouseenter', '.gallery-block_one-inner', function() {
+        $('.gallery-one, .work-one').on('mouseenter', '.gallery-block_one-inner', function() {
             let playerDiv = $(this).find('.youtube-player');
             if (playerDiv.length && playerDiv.attr('id')) {
                 let playerId = playerDiv.attr('id');
@@ -393,7 +393,6 @@
     });
     // END of YouTube Player API script
     // ======================================================================================
-
 
     // When document is scrolling, do
     $(window).on('scroll', function() {

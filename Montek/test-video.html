@@ -1,110 +1,80 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Video Test</title>
+    <meta charset="UTF-8">
+    <title>Video Sound Test</title>
     <style>
-        body {
-            background-color: #1a1a1a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
+        /* Basic styling for visibility */
+        body { background-color: #111; color: #fff; font-family: sans-serif; text-align: center; }
+        #video-container { 
+            width: 400px; 
+            margin: 50px auto; 
+            border: 2px solid red; 
+            padding: 10px; 
+            cursor: pointer;
         }
-        .gallery-block_one {
-            width: 100%;
-            max-width: 400px;
-        }
-        .gallery-block_one-content {
-            background-color: #222;
-            border: 1px solid #444;
-            padding: 25px;
-            color: white;
-            font-family: sans-serif;
-        }
-        .gallery-block_one-heading a {
-            color: white;
-            text-decoration: none;
-        }
-        /* CSS to make the video player visible */
-        .youtube-video-container {
-            position: relative;
-            padding-bottom: 56.25%; /* Default 16:9 aspect ratio */
-            height: 0;
-            overflow: hidden;
-            max-width: 100%;
-            background: #000;
-            margin-bottom: 25px;
-        }
-        .youtube-video-container.is-vertical {
-            padding-bottom: 177.77%; /* 9:16 aspect ratio for Shorts */
-        }
-        .youtube-video-container iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        #player { 
+            height: 225px; 
+            background: #000; 
+            pointer-events: none; /* Prevents the iframe from stealing hover events */
         }
     </style>
 </head>
 <body>
 
-    <div class="gallery-block_one">
-        <div class="gallery-block_one-inner">
-            <div class="gallery-block_one-content">
-                <div class="gallery-block_one-image youtube-video-container">
-                    <div class="youtube-player" data-video-id="KSgdjkKLaVE" data-orientation="vertical"></div>
-                </div>
-                <div class="gallery-block_one-title">Abstract Visuals</div>
-                <h4 class="gallery-block_one-heading"><a href="#">Project One</a></h4>
-            </div>
-        </div>
+    <h1>Video Sound Test</h1>
+    <p>Hover your mouse over the red box below. The video should play WITH SOUND.</p>
+
+    <div id="video-container">
+        <div id="player" data-video-id="KSgdjkKLaVE"></div>
     </div>
 
+    <script src="assets/js/jquery.js"></script>
     <script src="https://www.youtube.com/iframe_api"></script>
+
     <script>
-        let players = [];
+        let player;
 
+        // This function creates the YouTube player
         function onYouTubeIframeAPIReady() {
-            document.querySelectorAll('.youtube-player').forEach((playerNode, index) => {
-                let videoId = playerNode.dataset.videoId;
-                if (!videoId) return;
-
-                let orientation = playerNode.dataset.orientation;
-                let elementId = 'player' + index;
-                playerNode.id = elementId;
-
-                if (orientation === 'vertical') {
-                    playerNode.closest('.youtube-video-container').classList.add('is-vertical');
-                }
-
-                players[index] = new YT.Player(elementId, {
-                    height: '100%',
-                    width: '100%',
-                    videoId: videoId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'mute': 1,
-                        'controls': 0,
-                        'loop': 1,
-                        'playlist': videoId,
-                        'modestbranding': 1,
-                        'showinfo': 0,
-                        'rel': 0
-                    },
-                    events: {
-                        'onReady': onPlayerReady
+            console.log("TEST PAGE: YouTube API is Ready.");
+            player = new YT.Player('player', {
+                height: '100%',
+                width: '100%',
+                videoId: 'KSgdjkKLaVE',
+                playerVars: {
+                    'autoplay': 0,
+                    'mute': 1, // Start muted
+                    'controls': 0,
+                    'loop': 1,
+                    'playlist': 'KSgdjkKLaVE'
+                },
+                events: {
+                    'onReady': function() {
+                        console.log("TEST PAGE: Player is Ready.");
                     }
-                });
+                }
             });
         }
 
-        function onPlayerReady(event) {
-            event.target.playVideo();
-        }
+        // This code runs after the page is loaded
+        $(document).ready(function() {
+            console.log("TEST PAGE: Document is Ready. Setting up hover listener.");
+
+            $('#video-container').on('mouseenter', function() {
+                console.log("TEST PAGE: --- HOVER DETECTED! --- Attempting to unmute and play.");
+                if (player && typeof player.unMute === 'function') {
+                    player.unMute();
+                    player.playVideo();
+                }
+            }).on('mouseleave', function() {
+                console.log("TEST PAGE: --- MOUSE LEFT --- Muting and pausing.");
+                if (player && typeof player.pauseVideo === 'function') {
+                    player.pauseVideo();
+                    player.mute();
+                }
+            });
+        });
     </script>
 
 </body>
