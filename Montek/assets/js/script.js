@@ -96,7 +96,7 @@
         });
 
         //3rd Level Nav
-        $('.mobile-menu .navigation > li.dropdown > ul  > li.dropdown > .dropdown-btn').on('click', function(e) {
+        $('.mobile-menu .navigation > li.dropdown > ul > li.dropdown > .dropdown-btn').on('click', function(e) {
             e.preventDefault();
             var targetInner = $(this).parent('li').children('ul');
 
@@ -159,13 +159,11 @@
                 $(this).addClass("current");
             }
         });
-        // if any li has .current elmnt add class
         selector.children("li").each(function() {
             if ($(this).find(".current").length) {
                 $(this).addClass("current");
             }
         });
-        // if no file name return
         if ("" == FileName) {
             selector.find("li").eq(0).addClass("current");
         }
@@ -180,7 +178,12 @@
 
         for (let pas = 0; pas < splineElement.length; pas++) {
             var shadowRoot = splineElement[pas].shadowRoot;
-            shadowRoot.querySelector('#logo').remove();
+            if (shadowRoot) {
+               const logo = shadowRoot.querySelector('#logo');
+               if(logo){
+                logo.remove();
+               }
+            }
         }
     }
 
@@ -217,7 +220,6 @@
     if ($('.scroll-to-target').length) {
         $(".scroll-to-target").on('click', function() {
             var target = $(this).attr('data-target');
-            // animate
             $('html, body').animate({
                 scrollTop: $(target).offset().top
             }, 100);
@@ -226,10 +228,10 @@
 
     if ($('.paroller').length) {
         $('.paroller').paroller({
-            factor: 0.2, // multiplier for scrolling speed and offset, +- values for direction control 
-            factorLg: 0.4, // multiplier for scrolling speed and offset if window width is less than 1200px, +- values for direction control 
-            type: 'foreground', // background, foreground 
-            direction: 'horizontal' // vertical, horizontal 
+            factor: 0.2,
+            factorLg: 0.4,
+            type: 'foreground',
+            direction: 'horizontal'
         });
     }
 
@@ -253,27 +255,13 @@
         },
         speed: 500,
         breakpoints: {
-            '1600': {
-                slidesPerView: 3,
-            },
-            '1200': {
-                slidesPerView: 3,
-            },
-            '992': {
-                slidesPerView: 3,
-            },
-            '768': {
-                slidesPerView: 2,
-            },
-            '600': {
-                slidesPerView: 1,
-            },
-            '576': {
-                slidesPerView: 1,
-            },
-            '0': {
-                slidesPerView: 1,
-            },
+            '1600': { slidesPerView: 3 },
+            '1200': { slidesPerView: 3 },
+            '992': { slidesPerView: 3 },
+            '768': { slidesPerView: 2 },
+            '600': { slidesPerView: 1 },
+            '576': { slidesPerView: 1 },
+            '0': { slidesPerView: 1 },
         },
     });
 
@@ -294,7 +282,6 @@
 
     // Title Animation
     let splitTitleLines = gsap.utils.toArray(".title-anim");
-
     splitTitleLines.forEach(splitTextLine => {
         const tl = gsap.timeline({
             scrollTrigger: {
@@ -306,16 +293,9 @@
                 toggleActions: 'play none none none'
             }
         });
-
-        const itemSplitted = new SplitText(splitTextLine, {
-            type: "words, lines"
-        });
-        gsap.set(splitTextLine, {
-            perspective: 400
-        });
-        itemSplitted.split({
-            type: "lines"
-        })
+        const itemSplitted = new SplitText(splitTextLine, { type: "words, lines" });
+        gsap.set(splitTextLine, { perspective: 400 });
+        itemSplitted.split({ type: "lines" })
         tl.from(itemSplitted.lines, {
             duration: 1,
             delay: 0.3,
@@ -330,58 +310,87 @@
     // Elements Animation
     if ($('.wow').length) {
         var wow = new WOW({
-            boxClass: 'wow', // animated element css class (default is wow)
-            animateClass: 'animated', // animation css class (default is animated)
-            offset: 0, // distance to the element when triggering the animation (default is 0)
-            mobile: true, // trigger animations on mobile devices (default is true)
-            live: true // act on asynchronously loaded content (default is true)
+            boxClass: 'wow',
+            animateClass: 'animated',
+            offset: 0,
+            mobile: true,
+            live: true
         });
         wow.init();
     }
 
     // ======================================================================================
-    // YouTube Player API script - ADDED
+    // YouTube Player API script - FINAL FIX
     // ======================================================================================
-    let players = []; 
+    let players = [];
 
-    window.onYouTubeIframeAPIReady = function() {
-        $('.youtube-player').each(function(index) {
-            let videoId = $(this).data('video-id');
-            if (!videoId || videoId.startsWith("YOUR_")) {
-                return;
+    function createPlayer(elementId, index, videoId, orientation) {
+        if (orientation === 'vertical') {
+            $('#' + elementId).closest('.youtube-video-container').addClass('is-vertical');
+        }
+        players[index] = new YT.Player(elementId, {
+            height: '100%',
+            width: '100%',
+            videoId: videoId,
+            playerVars: {
+                'autoplay': 0,
+                'mute': 1,
+                'controls': 0,
+                'loop': 1,
+                'playlist': videoId,
+                'modestbranding': 1,
+                'showinfo': 0,
+                'rel': 0
+            },
+            events: {
+                'onReady': onPlayerReady
             }
-            let orientation = $(this).data('orientation');
-            let elementId = 'player' + index;
-            $(this).attr('id', elementId);
-
-            if (orientation === 'vertical') {
-                $(this).closest('.youtube-video-container').addClass('is-vertical');
-            }
-
-            players[index] = new YT.Player(elementId, {
-                height: '100%',
-                width: '100%',
-                videoId: videoId,
-                playerVars: {
-                    'autoplay': 1,
-                    'mute': 1,
-                    'controls': 0,
-                    'loop': 1,
-                    'playlist': videoId,
-                    'modestbranding': 1,
-                    'showinfo': 0,
-                    'rel': 0
-                },
-                events: {
-                    'onReady': onPlayerReady
-                }
-            });
         });
     }
 
     function onPlayerReady(event) {
-        event.target.playVideo();
+        // Player is ready, but will wait for hover to play.
     }
+
+    window.onYouTubeIframeAPIReady = function() {
+        $('.youtube-player').each(function(index) {
+            let playerDiv = $(this);
+            let elementId = 'player' + index;
+            playerDiv.attr('id', elementId);
+
+            // Use appear.js to create the player only when it's visible
+            playerDiv.appear(function() {
+                if (playerDiv.children('iframe').length === 0) {
+                    createPlayer(elementId, index, playerDiv.data('video-id'), playerDiv.data('orientation'));
+                }
+            }, { accX: 0, accY: 0 });
+        });
+    };
+
+    // Custom hover controls to play/unmute and pause/mute
+    $(document).ready(function() {
+        $('.work-one').on('mouseenter', '.gallery-block_one-inner', function() {
+            let playerDiv = $(this).find('.youtube-player');
+            if (playerDiv.length && playerDiv.attr('id')) {
+                let playerId = playerDiv.attr('id');
+                let playerIndex = parseInt(playerId.replace('player', ''));
+                if (players[playerIndex] && typeof players[playerIndex].playVideo === 'function') {
+                    players[playerIndex].unMute();
+                    players[playerIndex].playVideo();
+                }
+            }
+        }).on('mouseleave', '.gallery-block_one-inner', function() {
+            let playerDiv = $(this).find('.youtube-player');
+            if (playerDiv.length && playerDiv.attr('id')) {
+                let playerId = playerDiv.attr('id');
+                let playerIndex = parseInt(playerId.replace('player', ''));
+                if (players[playerIndex] && typeof players[playerIndex].pauseVideo === 'function') {
+                    players[playerIndex].pauseVideo();
+                    players[playerIndex].mute();
+                }
+            }
+        });
+    });
     // END of YouTube Player API script
     // ======================================================================================
 
