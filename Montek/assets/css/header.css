@@ -1033,7 +1033,9 @@
         padding: 15px 0px;
     }
     .main-header .header-lower .logo-box .logo {
-        width: 120px; /* Smaller logo on mobile */
+        width: 50px; /* Smaller logo on mobile */
         padding: 10px 0px;
     }
 }
+
+
